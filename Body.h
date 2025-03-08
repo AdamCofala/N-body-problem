@@ -9,12 +9,13 @@ public:
     glm::vec3 vel;
     glm::vec3 acc;
     float mass;
+    float radius;
 
-    Body() = default;
-    Body(glm::vec3 pos = { 0.0f,0.0f,0.0f }, glm::vec3 vel={0.0f,0.0f,0.0f}, float mass = 0.0f) {
-        this->pos;
-        this->vel;
-        this->mass;
+    Body(glm::vec3 pos = { 0.0f,0.0f,0.0f }, glm::vec3 vel={0.0f,0.0f,0.0f}, float mass = 0.0f, float radius=1.0f) {
+        this->pos = pos;      
+        this->vel = vel;      
+        this->mass = mass;    
+        this->radius = radius;
         acc = { 0.0f,0.0f,0.0f };
     }
 
