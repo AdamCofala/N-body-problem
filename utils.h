@@ -40,11 +40,11 @@ std::vector<Body> uniform_disc(size_t n) {
         const glm::vec3 dir(
             std::cos(angle),
             std::sin(angle),
-            std::cos(angle)
+            0.0f
         );
 
         const glm::vec3 pos = dir * outer_radius * std::sqrt(r);
-        const glm::vec3 vel = glm::vec3(dir.y, -dir.x, dir.z);  // Tangent direction
+        const glm::vec3 vel = glm::vec3(dir.y, -dir.x, 0);  // Tangent direction
 
         bodies.emplace_back(
             pos,
