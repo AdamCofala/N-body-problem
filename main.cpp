@@ -37,8 +37,8 @@ int main() {
 
 
             float time = 1000.0f * (c_end - c_start) / CLOCKS_PER_SEC;
-            std::cout << "For " << x << " : " << std::endl;
-            std::cout << std::fixed << "CPU time used:  " << time << "ms\n" << "Which is: " << 1000.0f * nframes / time << "fps" << std::endl;
+            std::cout << "For " << x << " bodies: " << std::endl;
+            std::cout << std::fixed << "CPU time used:  " << time << "ms\n" << "Which is: " << 1000.0f * nframes / time << " fps" << std::endl<<std::endl;
         
         }
     }
