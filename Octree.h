@@ -133,7 +133,6 @@ public:
     }
 
     void propagate() {
-#pragma omp parallel
         for (auto it = parents.rbegin(); it != parents.rend(); ++it) {
             size_t node = *it;
             size_t child = nodes[node].children;
