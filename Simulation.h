@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <iostream>
 #include <vector>
@@ -6,7 +6,7 @@
 #include "Body.h"
 #include "Octree.h"
 #include "utils.h"
-
+constexpr float G = 6.674e-11f;
 
 class Simulation {
 public:
@@ -27,6 +27,36 @@ public:
         attract();  // Calculate forces first
         iterate();  // Update positions/velocities
         frame++;
+    }
+
+    void Brute_step() {
+        // Phase 1: Compute accelerations
+        for (Body& x : bodies) {
+            x.acc = glm::vec3(0.0f);
+            for (const Body& y : bodies) {
+                if (&x == &y) continue; // Skip self-interaction
+
+                // Calculate distance vector
+                glm::vec3 r_vec = y.pos - x.pos;
+                float r_squared = glm::dot(r_vec, r_vec);
+
+                // Avoid division by zero (add softening length if needed)
+                if (r_squared < 1e-10f) continue;
+
+                float r = glm::sqrt(r_squared);
+                glm::vec3 direction = r_vec / r; // Normalized direction
+
+                // Newtonian gravity: F = G*(m1*m2)/r², acceleration = F/m1 = G*m2/r²
+                x.acc += G * y.mass * direction / r_squared;
+            }
+        }
+
+        // Phase 2: Update velocities and positions
+        for (Body& x : bodies) {
+            x.vel += x.acc * dt;
+            x.pos += x.vel * dt;
+        }
+
     }
 
 private:

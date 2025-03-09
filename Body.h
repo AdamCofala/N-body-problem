@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+
 class Body {
 public:
 
@@ -24,4 +25,7 @@ public:
         vel += acc * dt;
         acc *= 0.0f;
     }
+
+    
+
 };
