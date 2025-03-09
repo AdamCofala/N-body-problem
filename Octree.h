@@ -57,6 +57,7 @@ public:
 
 	std::vector<Octant> subdivide() const {
 		std::vector<Octant> children(8);
+
 		for (unsigned int i = 0; i < 8; i++) {
 			children[i] = intoOctant(i);
 		}
@@ -122,6 +123,7 @@ public:
         std::vector<Octant> octants = nodes[node].octant.subdivide();
 
         // Create 8 children with proper next pointers
+
         for (size_t i = 0; i < 8; i++) {
             const size_t next = (i < 7) ? children + i + 1 : nodes[node].next;
             nodes.emplace_back(next, octants[i]);
@@ -131,6 +133,7 @@ public:
     }
 
     void propagate() {
+#pragma omp parallel
         for (auto it = parents.rbegin(); it != parents.rend(); ++it) {
             size_t node = *it;
             size_t child = nodes[node].children;

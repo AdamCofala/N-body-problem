@@ -21,6 +21,7 @@ int main() {
             const std::clock_t c_start = std::clock();
             auto t_start = std::chrono::high_resolution_clock::now();
             int nframes = 1000;
+
             for (int frame = 0; frame < nframes; ++frame) {
                 sim.step();
               
