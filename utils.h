@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include "Body.h"
 #include <cmath>
-# define M_PI           3.14159265358979323846  /* pi */
+#define M_PI 3.14159265358979323846f  /* pi */
 
 std::vector<Body> uniform_disc(size_t n) {
     std::vector<Body> bodies;
@@ -24,7 +24,7 @@ std::vector<Body> uniform_disc(size_t n) {
 
     // Random number setup with fixed seed for reproducibility
     std::mt19937 gen(0);
-    std::uniform_real_distribution<float> angle_dist(0.0f, 2.0f * M_PI);
+    std::uniform_real_distribution<float> angle_dist(0.0f, 2.0f*M_PI);
     std::uniform_real_distribution<float> radius_dist(0.0f, 1.0f);
 
     // Calculate disc parameters

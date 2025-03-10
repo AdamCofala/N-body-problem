@@ -19,6 +19,7 @@ public:
 		float min_z = FLT_MAX;
 		float max_z = FLT_MIN;
 
+        #pragma omp parallel
 		for (const Body &body : Bodies) {
 
 			min_x = std::min(min_x, body.pos.x);
