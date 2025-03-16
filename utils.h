@@ -26,21 +26,22 @@ std::vector<Body> uniform_disc(size_t n) {
     std::mt19937 gen(0);
     std::uniform_real_distribution<float> angle_dist(0.0f, 2.0f*M_PI);
     std::uniform_real_distribution<float> radius_dist(0.0f, 1.0f);
-
-    // Calculate disc parameters
+    
     const float outer_radius = float(std::sqrt(n)) * 5.0f;
     const float t = inner_radius / outer_radius;
+    std::normal_distribution<float> z_dist(0.0f, outer_radius * 0.1f);
 
     // Generate orbiting bodies
     while (bodies.size() < n) {
         const float angle = angle_dist(gen);
         const float r = radius_dist(gen) * (1.0f - t * t) + t * t;
-
+        //change z later
+        const float z = z_dist(gen)*0.0f;
         // Convert to Cartesian coordinates (x, y, 0)
         const glm::vec3 dir(
             std::cos(angle),
             std::sin(angle),
-            0.0f
+            z
         );
 
         const glm::vec3 pos = dir * outer_radius * std::sqrt(r);

@@ -18,6 +18,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Include\glad\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h">
@@ -32,5 +35,13 @@
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\OneDrive - MSFT\3d\3dShapeRenderer\vertex.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\..\..\OneDrive - MSFT\3d\3dShapeRenderer\fragment.fs">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
