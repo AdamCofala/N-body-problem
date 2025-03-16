@@ -12,35 +12,84 @@
 #define GLFW_INCLUDE_NONE
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "Camera.h"
 
 // Global variables
-const int width = 1200;
-const int height = 720;
+GLuint  SCR_WIDTH = 1200;
+GLuint  SCR_HEIGHT = 720;
+GLuint  oldSCR_WIDTH = 1200;
+GLuint  oldSCR_HEIGHT = 720;
+
 const int N = 20000;
+int frame = 0;
 float scale = 10.0f;
-float k = width / height;
+float aspectRatio;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+float FOV = 80.0f;
 
 GLFWwindow* window = nullptr;
 GLuint VAO, VBO, shaderProgram;
 GLfloat* vertices = new GLfloat[size_t(N) * 3];
+
+GLuint colorVBO;
+GLfloat* colors;
+Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
+
 Simulation sim(N);
 
+
 // Shader sources
+// Modified vertex shader
 const char* vertexShaderSource = R"(#version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;  // New color attribute
+out vec3 Color;                        // Pass to fragment shader
+
 void main() {
     gl_Position = vec4(aPos, 1.0);
     gl_PointSize = 3.0;
+    Color = aColor;  // Pass color to fragment shader
 })";
 
+// Modified fragment shader
 const char* fragmentShaderSource = R"(#version 330 core
+in vec3 Color;  // Color from vertex shader
 out vec4 FragColor;
+
 void main() {
-    FragColor = vec4(0.8f, 0.3f, 0.9f, 1.0f);
+    vec2 center = gl_PointCoord - vec2(0.5);
+    float dist = length(center);
+    float alpha = 1.0 - smoothstep(0.48, 0.5, dist);
+    
+    FragColor = vec4(Color, alpha);  // Use dynamic color
 })";
+
+//3D stuff
+    void setMat3(const std::string & name, const glm::mat3 & mat)
+    {
+        glUniformMatrix3fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+
+    }
+    // ------------------------------------------------------------------------
+    void setMat4(const std::string & name, const glm::mat4 & mat)
+    {
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+
+    void use()
+    {
+        glUseProgram(shaderProgram);
+    }
+
+    void setVec3(const std::string & name, float x, float y, float z)
+    {
+        glUniform3f(glGetUniformLocation(shaderProgram, name.c_str()), x, y, z);
+    }
 
 // Function prototypes
 bool initializeGLFW();
@@ -50,6 +99,7 @@ void update();
 void draw();
 void cleanup();
 void addToBuffer();
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // Initialization functions
 bool initializeGLFW() {
@@ -58,7 +108,7 @@ bool initializeGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, "N-Body Simulation", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH,SCR_HEIGHT, "N-Body Simulation", NULL, NULL);
     if (!window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -71,8 +121,9 @@ bool initializeGLFW() {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return false;
     }
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     return true;
 }
 
@@ -105,31 +156,53 @@ bool createShaders() {
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+    //3D camera
+    if (!(SCR_WIDTH == 0 || SCR_HEIGHT == 0))
+        aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
+
+    glm::mat4 projection = glm::perspective(glm::radians(camera.horizontalFov), aspectRatio, 0.1f, 10000.0f);
+    glm::mat4 view = camera.GetViewMatrix();
+    camera.updateRadius(deltaTime);
+
+    use();
+    setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
+    setMat4("projection", projection);
+    setMat4("view", view);
+
     return true;
 }
 
 void setupBuffers() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &colorVBO);  // Create color VBO
 
     glBindVertexArray(VAO);
+
+    // Position buffer setup
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    // Initialize buffer with empty data
     glBufferData(GL_ARRAY_BUFFER, N * 3 * sizeof(GLfloat), nullptr, GL_DYNAMIC_DRAW);
-
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // Color buffer setup
+    glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+    glBufferData(GL_ARRAY_BUFFER, N * 3 * sizeof(GLfloat), nullptr, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // Configure OpenGL
+    // Initialize color array
+    colors = new GLfloat[N * 3];
+
+    // Configure OpenGL (keep your existing blend settings if needed)
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Changed for better blending
     glEnable(GL_PROGRAM_POINT_SIZE);
 }
-
 // Runtime functions
 void update() {
     sim.dt = deltaTime;
@@ -137,14 +210,38 @@ void update() {
     addToBuffer();
 }
 
-void draw() {
+float horizontalToVerticalFOV(float horizontalFOV, float aspectRatio) {
+    return 2.0f * atan(tan(glm::radians(horizontalFOV) / 2.0f) / aspectRatio);
+}
 
+void draw() {
 
     float currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+    frame++;
+    if(frame%40==0) std::cout<<deltaTime<<std::endl;
+    
+    if (oldSCR_WIDTH != SCR_WIDTH || oldSCR_HEIGHT != SCR_HEIGHT) {
+    
+        //3D camera
+        if (!(SCR_WIDTH == 0 || SCR_HEIGHT == 0))
+            aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
+    
+        glm::mat4 projection = glm::perspective(glm::radians(camera.horizontalFov), aspectRatio, 0.1f, 10000.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        camera.updateRadius(deltaTime);
+    
+        use();
+        setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
+        setMat4("projection", projection);
+        setMat4("view", view);
+    }
+    
+    oldSCR_HEIGHT = SCR_HEIGHT;
+    oldSCR_WIDTH = SCR_WIDTH;
 
-    glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.01f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(shaderProgram);
@@ -155,20 +252,37 @@ void draw() {
 }
 
 void addToBuffer() {
+#pragma omp parallel for
     for (int i = 0; i < N; i++) {
-        // Normalize positions to [-1, 1] range
+        // Position calculation (existing)
         vertices[i * 3] = sim.bodies[i].pos.x / (100.0f * scale);
         vertices[i * 3 + 1] = sim.bodies[i].pos.y / (100.0f * scale);
         vertices[i * 3 + 2] = sim.bodies[i].pos.z / (100.0f * scale);
+
+        float max_speed = 500.0f;
+        // New: Color calculation based on velocity (example)
+        float speed = sqrt(sim.bodies[i].pos.x * sim.bodies[i].pos.x + sim.bodies[i].pos.y * sim.bodies[i].pos.y);
+        float normalized_speed = (speed / max_speed);
+        normalized_speed = std::min(1.0f, std::max(0.0f, normalized_speed));
+
+        colors[i * 3] = (1.0f - normalized_speed);       // Red component
+        colors[i * 3 + 1] = 0.2f;     // Green component
+        colors[i * 3 + 2] = normalized_speed; ;  // Blue component
     }
 
+    // Update position buffer
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, N * 3 * sizeof(GLfloat), vertices);
+
+    // Update color buffer
+    glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, N * 3 * sizeof(GLfloat), colors);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-
 // Cleanup function
 void cleanup() {
+    delete[] colors;
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
@@ -193,3 +307,15 @@ int main() {
     cleanup();
     return 0;
 }
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+
+    // make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
+    SCR_HEIGHT = height;
+    SCR_WIDTH = width;
+
+    glViewport(0, 0, width, height);
+}
+
