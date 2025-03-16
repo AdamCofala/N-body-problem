@@ -16,11 +16,12 @@ std::vector<Body> uniform_disc(size_t n) {
     const float inner_radius = 100.0f;
     const float central_mass = 1e6f;
     bodies.emplace_back(
-        glm::vec3(0.0f),  // Position (0,0,0)
+        glm::vec3(0.0f, 0.0f, 0.0f),  // Position (0,0,0)
         glm::vec3(0.0f),  // Velocity (0,0,0)
         central_mass,
         inner_radius
     );
+
 
     // Random number generators
     std::mt19937 gen(0);
@@ -28,7 +29,7 @@ std::vector<Body> uniform_disc(size_t n) {
     std::uniform_real_distribution<float> radius_dist(0.0f, 1.0f);
 
     // Random mass distribution
-    std::uniform_real_distribution<float> mass_dist(1.0f, 30.0f);
+    std::uniform_real_distribution<float> mass_dist(1.0f, 50.0f);
 
     // Galaxy disc parameters
     const float outer_radius = float(std::sqrt(n)) * 5.0f;

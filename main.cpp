@@ -22,6 +22,12 @@ GLuint  SCR_WIDTH = 1200;
 GLuint  SCR_HEIGHT = 720;
 GLuint  oldSCR_WIDTH = 1200;
 GLuint  oldSCR_HEIGHT = 720;
+GLuint  mouseX;
+GLuint  mouseY;
+bool    firstMouse=true;
+float   lastX = SCR_WIDTH / 2.0f;
+float   lastY = SCR_HEIGHT / 2.0f;
+
 
 const int N = 20000;
 int frame = 0;
@@ -46,12 +52,16 @@ Simulation sim(N);
 // Shader sources
 // Modified vertex shader
 const char* vertexShaderSource = R"(#version 330 core
+
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;  // New color attribute
 out vec3 Color;                        // Pass to fragment shader
 
+uniform mat4 view;
+uniform mat4 projection;
+
 void main() {
-    gl_Position = vec4(aPos, 1.0);
+    gl_Position = projection * view * vec4(aPos, 1.0);
     gl_PointSize = 3.0;
     Color = aColor;  // Pass color to fragment shader
 })";
@@ -100,6 +110,10 @@ void draw();
 void cleanup();
 void addToBuffer();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow* window);
+
 
 // Initialization functions
 bool initializeGLFW() {
@@ -121,7 +135,11 @@ bool initializeGLFW() {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return false;
     }
+
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     return true;
@@ -220,11 +238,12 @@ void draw() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     frame++;
-    if(frame%40==0) std::cout<<deltaTime<<std::endl;
+    //if(frame%40==0) std::cout<<deltaTime<<std::endl;
+
+    processInput(window);
     
-    if (oldSCR_WIDTH != SCR_WIDTH || oldSCR_HEIGHT != SCR_HEIGHT) {
-    
-        //3D camera
+    if (lastX != mouseX || lastY != mouseX || oldSCR_WIDTH != SCR_WIDTH || oldSCR_HEIGHT != SCR_HEIGHT ) {
+   
         if (!(SCR_WIDTH == 0 || SCR_HEIGHT == 0))
             aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
     
@@ -255,9 +274,9 @@ void addToBuffer() {
 #pragma omp parallel for
     for (int i = 0; i < N; i++) {
         // Position calculation (existing)
-        vertices[i * 3] = sim.bodies[i].pos.x / (100.0f * scale);
-        vertices[i * 3 + 1] = sim.bodies[i].pos.y / (100.0f * scale);
-        vertices[i * 3 + 2] = sim.bodies[i].pos.z / (100.0f * scale);
+        vertices[i * 3] = sim.bodies[i].pos.y ;
+        vertices[i * 3 + 1] = sim.bodies[i].pos.z ;
+        vertices[i * 3 + 2] = sim.bodies[i].pos.x ;
 
         float max_speed = 500.0f;
         // New: Color calculation based on velocity (example)
@@ -318,4 +337,50 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
     glViewport(0, 0, width, height);
 }
+
+void processInput(GLFWwindow* window)
+{
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, true);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+       camera.ProcessKeyboard(DOWN, deltaTime);
+
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    mouseX = xpos;
+    mouseY = ypos;
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
 

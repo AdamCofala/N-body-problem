@@ -181,12 +181,12 @@ enum Camera_Movement {
 };
 
 // Default camera values
-#define YAW  -90.0f
-#define PITCH  0.0f
-#define SENSITIVITY 0.12f
-#define RADIUS 5.0f // Default distance from the target
-#define ZOOM  70.0f
-#define MOVEMENTSPEED  3.0f
+#define YAW  -45.0f
+#define PITCH  25.0f
+#define SENSITIVITY 0.15f
+#define RADIUS 1500.0f // Default distance from the target
+#define ZOOM  90.0f
+#define MOVEMENTSPEED  300.0f
 
 class Camera {
 public:
@@ -221,7 +221,7 @@ public:
         float y = Radius * sin(glm::radians(Pitch));
         float z = Radius * sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         Position = Target + glm::vec3(x, y, z);
-        //std::cout << Position.x << std::endl << Position.y << std::endl << Position.z << std::endl << "asdasd\n";
+       // std::cout << Position.x << std::endl << Position.y << std::endl << Position.z << std::endl;
     }
 
     void updateRadius(float deltaTime)
@@ -240,6 +240,7 @@ public:
             if (Radius < desiredRadius)
                 Radius = desiredRadius;
         }
+       
 
         updateCameraPosition();
     }
@@ -273,6 +274,7 @@ public:
     // Process mouse scroll (optional: to change radius)
     void ProcessMouseScroll(float yoffset)
     {
+        
         desiredRadius -= (float)yoffset * 10;
         if (desiredRadius < 1.0f) desiredRadius = 1.0f;
         //std::cout << desiredRadius << std::endl;
