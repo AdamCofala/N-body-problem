@@ -17,7 +17,11 @@
 const int width = 1200;
 const int height = 720;
 const int N = 20000;
-float scale = 7.0f;
+float scale = 10.0f;
+float k = width / height;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 GLFWwindow* window = nullptr;
 GLuint VAO, VBO, shaderProgram;
@@ -35,7 +39,7 @@ void main() {
 const char* fragmentShaderSource = R"(#version 330 core
 out vec4 FragColor;
 void main() {
-    FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);
+    FragColor = vec4(0.8f, 0.3f, 0.9f, 1.0f);
 })";
 
 // Function prototypes
@@ -122,17 +126,24 @@ void setupBuffers() {
 
     // Configure OpenGL
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glEnable(GL_PROGRAM_POINT_SIZE);
 }
 
 // Runtime functions
 void update() {
+    sim.dt = deltaTime;
     sim.step();
     addToBuffer();
 }
 
 void draw() {
+
+
+    float currentFrame = static_cast<float>(glfwGetTime());
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
     glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 

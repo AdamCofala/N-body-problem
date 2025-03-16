@@ -12,8 +12,8 @@ std::vector<Body> uniform_disc(size_t n) {
     std::vector<Body> bodies;
     bodies.reserve(n);
 
-    // Add central massive body
-    const float inner_radius = 25.0f;
+    // Add central massive body (center of everything)
+    const float inner_radius = 100.0f;
     const float central_mass = 1e6f;
     bodies.emplace_back(
         glm::vec3(0.0f),  // Position (0,0,0)
@@ -22,36 +22,50 @@ std::vector<Body> uniform_disc(size_t n) {
         inner_radius
     );
 
-    // Random number setup with fixed seed for reproducibility
+    // Random number generators
     std::mt19937 gen(0);
-    std::uniform_real_distribution<float> angle_dist(0.0f, 2.0f*M_PI);
+    std::uniform_real_distribution<float> angle_dist(0.0f, 2.0f * M_PI);
     std::uniform_real_distribution<float> radius_dist(0.0f, 1.0f);
-    
+
+    // Random mass distribution
+    std::uniform_real_distribution<float> mass_dist(1.0f, 30.0f);
+
+    // Galaxy disc parameters
     const float outer_radius = float(std::sqrt(n)) * 5.0f;
     const float t = inner_radius / outer_radius;
-    std::normal_distribution<float> z_dist(0.0f, outer_radius * 0.1f);
+    const float vertical_scale = outer_radius * 0.1f; // Disc thickness (10% of radius)
+    std::normal_distribution<float> z_dist(0.0f, vertical_scale);
 
-    // Generate orbiting bodies
-    while (bodies.size() < n) {
+    // Generate all other bodies with random masses
+    for (size_t i = 1; i < n; i++) {
         const float angle = angle_dist(gen);
         const float r = radius_dist(gen) * (1.0f - t * t) + t * t;
-        //change z later
-        const float z = z_dist(gen)*0.0f;
-        // Convert to Cartesian coordinates (x, y, 0)
-        const glm::vec3 dir(
-            std::cos(angle),
-            std::sin(angle),
-            z
+
+        // Radial coordinates in disc plane
+        const glm::vec2 radial_dir(std::cos(angle), std::sin(angle));
+        const float radial_distance = outer_radius * std::sqrt(r);
+
+        // 3D position with Gaussian distribution on Z axis
+        const glm::vec3 pos(
+            radial_dir.x * radial_distance,
+            radial_dir.y * radial_distance,
+            z_dist(gen)
         );
 
-        const glm::vec3 pos = dir * outer_radius * std::sqrt(r);
-        const glm::vec3 vel = glm::vec3(dir.y, -dir.x, 0);  // Tangent direction
+        // Generate random mass
+        float body_mass = mass_dist(gen);
+
+        // Radius based on mass
+        float body_radius = std::cbrt(body_mass);
+
+        // Tangential velocity (only in disc plane)
+        const glm::vec3 vel_dir = glm::vec3(radial_dir.y, -radial_dir.x, 0.0f);
 
         bodies.emplace_back(
             pos,
-            vel,
-            1.0f,    // Mass
-            std::cbrt(1.0f)  // Radius = mass^(1/3)
+            vel_dir,  // Just direction for now, magnitude will be set later
+            body_mass,
+            body_radius
         );
     }
 
@@ -63,6 +77,7 @@ std::vector<Body> uniform_disc(size_t n) {
 
     // Calculate velocities based on enclosed mass
     float total_mass = bodies[0].mass;  // Start with central mass
+
     for (size_t i = 1; i < bodies.size(); ++i) {
         auto& body = bodies[i];
         const float distance = glm::length(body.pos);
