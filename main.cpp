@@ -37,7 +37,7 @@ float   aspectRatio;
 bool    cursorEnDis = false;
 
 //Simulation settings
-const int N = 20000;
+const int N     = 15000;
 float     scale = 10.0f;
 
 //Time & camera variables
