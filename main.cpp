@@ -16,6 +16,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Camera.h"
+#include <string>
 
 // Global variables
 GLuint  SCR_WIDTH = 1200;
@@ -30,21 +31,23 @@ float   lastY = SCR_HEIGHT / 2.0f;
 
 
 const int N = 20000;
-int frame = 0;
-float scale = 10.0f;
-float aspectRatio;
+int       frame = 0;
+float     scale = 10.0f;
+float     aspectRatio;
+float     FPS = 0;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-float FOV = 80.0f;
+float FOV       = 80.0f;
 
-GLFWwindow* window = nullptr;
-GLuint VAO, VBO, shaderProgram;
-GLfloat* vertices = new GLfloat[size_t(N) * 3];
+GLFWwindow* window    = nullptr;
+GLuint      VAO, VBO, shaderProgram;
+GLfloat*    vertices  = new GLfloat[size_t(N) * 3];
+std::string windowTitle = "N-body probmem, FPS: ";
 
-GLuint colorVBO;
+GLuint   colorVBO;
 GLfloat* colors;
-Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
+Camera   camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 Simulation sim(N);
 
@@ -113,7 +116,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-
 
 // Initialization functions
 bool initializeGLFW() {
@@ -238,7 +240,11 @@ void draw() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     frame++;
-    //if(frame%40==0) std::cout<<deltaTime<<std::endl;
+    if (frame % 5 == 0) {
+        FPS = (1 / deltaTime);
+        glfwSetWindowTitle(window, (windowTitle + std::to_string(FPS)).c_str());
+    }
+    
 
     processInput(window);
     
