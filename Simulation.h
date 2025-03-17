@@ -70,7 +70,7 @@ private:
     }
 
     void attract() {
-        // Rebuild octree with current positions
+  
         Octant new_octant(bodies);
         octree.clear(new_octant);
 

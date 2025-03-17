@@ -102,6 +102,7 @@ public:
     std::vector<Node> nodes;
     std::vector<size_t> parents;
     const size_t ROOT = 0;
+    int n = 20000;
 
     // Modified constructor to initialize with root node
     Octree(float theta, float epsilon, Octant root_octant)
@@ -109,6 +110,7 @@ public:
         e_sq(epsilon* epsilon)
     {
         nodes.emplace_back(0, root_octant);  // Initialize root node
+        nodes.reserve(n*0.5);
     }
     void clear(Octant octant) {
         nodes.clear();

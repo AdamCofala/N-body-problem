@@ -41,8 +41,8 @@ const int N = 20000;
 float     scale = 10.0f;
 
 //Time & camera variables
-int       frame = 0;
-float     FPS = 0;
+int   frame     = 0;
+int   FPS       = 0;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float FOV       = 80.0f;
