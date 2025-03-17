@@ -34,6 +34,7 @@ bool    firstMouse=true;
 float   lastX = SCR_WIDTH / 2.0f;
 float   lastY = SCR_HEIGHT / 2.0f;
 float   aspectRatio;
+bool    cursorEnDis = false;
 
 //Simulation settings
 const int N = 20000;
@@ -361,11 +362,17 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
        camera.ProcessKeyboard(DOWN, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        cursorEnDis = 1 - cursorEnDis; // Toggle between 0 and 1
+        glfwSetInputMode(window, GLFW_CURSOR, cursorEnDis ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    }
 
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
+    if (cursorEnDis) return;
+
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
