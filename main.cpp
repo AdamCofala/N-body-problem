@@ -362,10 +362,15 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
        camera.ProcessKeyboard(DOWN, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+
+    static bool previousStateR = GLFW_RELEASE;
+    int currentStateR = glfwGetKey(window, GLFW_KEY_R);
+    if (currentStateR == GLFW_PRESS && previousStateR == GLFW_RELEASE)
+    {
         cursorEnDis = 1 - cursorEnDis; // Toggle between 0 and 1
         glfwSetInputMode(window, GLFW_CURSOR, cursorEnDis ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
+    previousStateR = currentStateR;
 
 }
 
