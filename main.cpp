@@ -1,22 +1,27 @@
-﻿#include <iostream>
+﻿// c++ libraries
+#include <iostream>
 #include <vector>
 #include <iomanip>
-#include "Body.h"
-#include "Octree.h"
-#include "utils.h"
-#include "Simulation.h"
+#include <string>
 #include <ctime>
 #include <chrono>
 #include <thread>
 #include <fstream>
+
+//Classes 
+#include "Body.h"
+#include "Octree.h"
+#include "utils.h"
+#include "Simulation.h"
+#include "Camera.h"
+
+//rendering things
 #define GLFW_INCLUDE_NONE
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Camera.h"
-#include <string>
 
 // Global variables
 GLuint  SCR_WIDTH = 1200;
@@ -28,32 +33,34 @@ GLuint  mouseY;
 bool    firstMouse=true;
 float   lastX = SCR_WIDTH / 2.0f;
 float   lastY = SCR_HEIGHT / 2.0f;
+float   aspectRatio;
 
-
+//Simulation settings
 const int N = 20000;
-int       frame = 0;
 float     scale = 10.0f;
-float     aspectRatio;
-float     FPS = 0;
 
+//Time & camera variables
+int       frame = 0;
+float     FPS = 0;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float FOV       = 80.0f;
 
-GLFWwindow* window    = nullptr;
-GLuint      VAO, VBO, shaderProgram;
-GLfloat*    vertices  = new GLfloat[size_t(N) * 3];
+//Rendering objects
+GLFWwindow* window      = nullptr;
 std::string windowTitle = "N-body probmem, FPS: ";
+//buffers
+GLuint      VAO, VBO,   shaderProgram;
+GLfloat*    vertices    = new GLfloat[size_t(N) * 3];
+GLuint      colorVBO;
+GLfloat*    colors;
 
-GLuint   colorVBO;
-GLfloat* colors;
-Camera   camera(glm::vec3(0.0f, 0.0f, 0.0f));
-
+//Created objects
+Camera     camera(glm::vec3(0.0f, 0.0f, 0.0f));
 Simulation sim(N);
 
 
 // Shader sources
-// Modified vertex shader
 const char* vertexShaderSource = R"(#version 330 core
 
 layout (location = 0) in vec3 aPos;
@@ -69,7 +76,6 @@ void main() {
     Color = aColor;  // Pass color to fragment shader
 })";
 
-// Modified fragment shader
 const char* fragmentShaderSource = R"(#version 330 core
 in vec3 Color;  // Color from vertex shader
 out vec4 FragColor;
@@ -88,17 +94,14 @@ void main() {
         glUniformMatrix3fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 
     }
-    // ------------------------------------------------------------------------
     void setMat4(const std::string & name, const glm::mat4 & mat)
     {
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
-
     void use()
     {
         glUseProgram(shaderProgram);
     }
-
     void setVec3(const std::string & name, float x, float y, float z)
     {
         glUniform3f(glGetUniformLocation(shaderProgram, name.c_str()), x, y, z);
@@ -223,6 +226,7 @@ void setupBuffers() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Changed for better blending
     glEnable(GL_PROGRAM_POINT_SIZE);
 }
+
 // Runtime functions
 void update() {
     sim.dt = deltaTime;
@@ -305,7 +309,7 @@ void addToBuffer() {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-// Cleanup function
+
 void cleanup() {
     delete[] colors;
     glDeleteVertexArrays(1, &VAO);
@@ -333,6 +337,7 @@ int main() {
     return 0;
 }
 
+//Calbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 
