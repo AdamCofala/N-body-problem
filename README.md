@@ -1,13 +1,13 @@
 
 # N-Body Simulation with OpenGL
 
-A real-time 3D N-body simulation of gravitational interactions, optimized with Barnes-Hut algorithm and rendered using OpenGL. Features interactive camera controls, velocity-based coloring, and dynamic parameter adjustments.
+A real-time 3D N-body simulation of gravitational interactions, optimized with Barnes-Hut algorithm and rendered using OpenGL. Features interactive camera controls, velocity & mass-based coloring&size, and dynamic parameter adjustments.
 
 ## Screenshots
 
 | [![Galaxy Simulation](https://github.com/user-attachments/assets/f4a9f5d2-ebd1-4083-826d-4f2f16b338fd)](https://github.com/user-attachments/assets/f4a9f5d2-ebd1-4083-826d-4f2f16b338fd) | [![Close-up View](https://github.com/user-attachments/assets/ac4785c6-4455-4c00-9df6-eae34c235837)](https://github.com/user-attachments/assets/ac4785c6-4455-4c00-9df6-eae34c235837) | [![Velocity Coloring](https://github.com/user-attachments/assets/b5208e76-fd0a-48f8-9819-40b3653dee54)](https://github.com/user-attachments/assets/b5208e76-fd0a-48f8-9819-40b3653dee54) |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Full Galaxy Overview                                                                                                                                                                     | Top view                                                                                                                                                                | Velocity-based Color Mapping in details                                                                                                                                                            |
+| Full Galaxy Overview                                                                                                                                                                     | Top view                                                                                                                                                                | Velocity & mass-based  Color-Size Mapping in details                                                                                                                                                            |
 
 
 ## Features
