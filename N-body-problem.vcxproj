@@ -147,10 +147,6 @@
     <ClInclude Include="Simulation.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\OneDrive - MSFT\3d\3dShapeRenderer\fragment.fs" />
-    <None Include="..\..\..\..\OneDrive - MSFT\3d\3dShapeRenderer\vertex.vs" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
