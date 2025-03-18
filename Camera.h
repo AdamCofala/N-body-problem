@@ -186,7 +186,7 @@ enum Camera_Movement {
 #define SENSITIVITY 0.15f
 #define RADIUS 1500.0f // Default distance from the target
 #define ZOOM  90.0f
-#define MOVEMENTSPEED  300.0f
+#define MOVEMENTSPEED  400.0f
 
 class Camera {
 public:
