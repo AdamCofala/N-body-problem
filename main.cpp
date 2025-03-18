@@ -288,7 +288,7 @@ void addToBuffer() {
         vertices[i * 3 + 1] = sim.bodies[i].pos.z ;
         vertices[i * 3 + 2] = sim.bodies[i].pos.x ;
         
-
+        if (i != 0) {
         float speed = sqrt(
             sim.bodies[i].vel.x * sim.bodies[i].vel.x +
             sim.bodies[i].vel.y * sim.bodies[i].vel.y +
@@ -302,14 +302,16 @@ void addToBuffer() {
         float normalized_speed = (speed - min_speed) / (max_speed - min_speed);
         normalized_speed = fmaxf(fminf(normalized_speed, 1.0f), 0.0f); // Clamp to [0, 1]
 
-        // Red increases with speed
-        colors[i * 3] = normalized_speed;
+        
+            // Red increases with speed
+            colors[i * 3] = normalized_speed;
 
-        // Green is zero (no green component)
-        colors[i * 3 + 1] = 0.1f;
+            // Green is zero (no green component)
+            colors[i * 3 + 1] = 0.1f;
 
-        // Blue decreases with speed
-        colors[i * 3 + 2] = 1.0f - normalized_speed;
+            // Blue decreases with speed
+            colors[i * 3 + 2] = 1.0f - normalized_speed;
+        }
     }
 
     // Update position buffer
