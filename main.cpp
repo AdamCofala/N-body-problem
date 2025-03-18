@@ -50,8 +50,8 @@ float FOV       = 80.0f;
 GLFWwindow* window      = nullptr;
 std::string windowTitle = "N-body probmem, FPS: ";
 //buffers
-GLuint      VAO, VBO,   shaderProgram;
-GLfloat*    vertices    = new GLfloat[size_t(N) * 3];
+GLuint      VAO, VBO, shaderProgram;
+GLfloat*    vertices = new GLfloat[size_t(N) * 3];
 GLuint      colorVBO;
 GLfloat*    colors;
 
@@ -287,16 +287,29 @@ void addToBuffer() {
         vertices[i * 3] = sim.bodies[i].pos.y ;
         vertices[i * 3 + 1] = sim.bodies[i].pos.z ;
         vertices[i * 3 + 2] = sim.bodies[i].pos.x ;
+        
 
-        float max_speed = 500.0f;
-        // New: Color calculation based on velocity (example)
-        float speed = sqrt(sim.bodies[i].pos.x * sim.bodies[i].pos.x + sim.bodies[i].pos.y * sim.bodies[i].pos.y);
-        float normalized_speed = (speed / max_speed);
-        normalized_speed = std::min(1.0f, std::max(0.0f, normalized_speed));
+        float speed = sqrt(
+            sim.bodies[i].vel.x * sim.bodies[i].vel.x +
+            sim.bodies[i].vel.y * sim.bodies[i].vel.y +
+            sim.bodies[i].vel.z * sim.bodies[i].vel.z
+        );
 
-        colors[i * 3] = (1.0f - normalized_speed);       // Red component
-        colors[i * 3 + 1] = 0.2f;     // Green component
-        colors[i * 3 + 2] = normalized_speed; ;  // Blue component
+        float min_speed = 40.0f;  // Minimum speed (blue)
+        float max_speed = 90.0f; // Maximum speed (red)
+
+        // Normalize speed to [0, 1]
+        float normalized_speed = (speed - min_speed) / (max_speed - min_speed);
+        normalized_speed = fmaxf(fminf(normalized_speed, 1.0f), 0.0f); // Clamp to [0, 1]
+
+        // Red increases with speed
+        colors[i * 3] = normalized_speed;
+
+        // Green is zero (no green component)
+        colors[i * 3 + 1] = 0.1f;
+
+        // Blue decreases with speed
+        colors[i * 3 + 2] = 1.0f - normalized_speed;
     }
 
     // Update position buffer

@@ -39,6 +39,7 @@ std::vector<Body> uniform_disc(size_t n) {
 
     // Generate all other bodies with random masses
     for (size_t i = 1; i < n; i++) {
+
         const float angle = angle_dist(gen);
         const float r = radius_dist(gen) * (1.0f - t * t) + t * t;
 
