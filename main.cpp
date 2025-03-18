@@ -54,6 +54,9 @@ GLuint      VAO, VBO, shaderProgram;
 GLfloat*    vertices = new GLfloat[size_t(N) * 3];
 GLuint      colorVBO;
 GLfloat*    colors;
+GLuint sizeVBO;          // Nowy VBO dla rozmiarów
+GLfloat* sizes = new GLfloat[N];      
+
 
 //Created objects
 Camera     camera(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -62,18 +65,18 @@ Simulation sim(N);
 
 // Shader sources
 const char* vertexShaderSource = R"(#version 330 core
-
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;  // New color attribute
-out vec3 Color;                        // Pass to fragment shader
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in float aSize; // Nowy atrybut rozmiaru
+out vec3 Color;
 
 uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
     gl_Position = projection * view * vec4(aPos, 1.0);
-    gl_PointSize = 3.0;
-    Color = aColor;  // Pass color to fragment shader
+    gl_PointSize = aSize; // Użyj przekazanego rozmiaru
+    Color = aColor;
 })";
 
 const char* fragmentShaderSource = R"(#version 330 core
@@ -200,6 +203,7 @@ void setupBuffers() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &colorVBO);  // Create color VBO
+    glGenBuffers(1, &sizeVBO);
 
     glBindVertexArray(VAO);
 
@@ -215,6 +219,12 @@ void setupBuffers() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
 
+    
+    glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
+    glBufferData(GL_ARRAY_BUFFER, N * sizeof(GLfloat), nullptr, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
+    glEnableVertexAttribArray(2);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
@@ -225,6 +235,7 @@ void setupBuffers() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Changed for better blending
     glEnable(GL_PROGRAM_POINT_SIZE);
+
 }
 
 // Runtime functions
@@ -273,6 +284,9 @@ void draw() {
     glClearColor(0.0f, 0.0f, 0.01f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, N * sizeof(GLfloat), sizes);
+
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
     glDrawArrays(GL_POINTS, 0, N);
@@ -280,38 +294,47 @@ void draw() {
     glfwSwapBuffers(window);
 }
 
-void addToBuffer() {
+void addToBuffer()  {
 #pragma omp parallel for
     for (int i = 0; i < N; i++) {
+
         // Position calculation (existing)
         vertices[i * 3] = sim.bodies[i].pos.y ;
         vertices[i * 3 + 1] = sim.bodies[i].pos.z ;
         vertices[i * 3 + 2] = sim.bodies[i].pos.x ;
-        
-        if (i != 0) {
+    
+
+        sizes[i] = 3.0f;
         float speed = sqrt(
             sim.bodies[i].vel.x * sim.bodies[i].vel.x +
             sim.bodies[i].vel.y * sim.bodies[i].vel.y +
             sim.bodies[i].vel.z * sim.bodies[i].vel.z
         );
 
-        float min_speed = 40.0f;  // Minimum speed (blue)
-        float max_speed = 90.0f; // Maximum speed (red)
+        if (i != 0) {
+            float min_speed = 40.0f;  // Minimum speed (blue)
+            float max_speed = 90.0f; // Maximum speed (red)
 
-        // Normalize speed to [0, 1]
-        float normalized_speed = (speed - min_speed) / (max_speed - min_speed);
-        normalized_speed = fmaxf(fminf(normalized_speed, 1.0f), 0.0f); // Clamp to [0, 1]
-
-        
+            // Normalize speed to [0, 1]
+            float normalized_speed = (speed - min_speed) / (max_speed - min_speed);
+            normalized_speed = std::clamp(normalized_speed, 0.0f, 1.0f); // Clamp to [0, 1] in case its higher
             // Red increases with speed
             colors[i * 3] = normalized_speed;
-
-            // Green is zero (no green component)
+            // Green is for gradient
             colors[i * 3 + 1] = 0.1f;
-
             // Blue decreases with speed
             colors[i * 3 + 2] = 1.0f - normalized_speed;
+
+            // [min size] + (mass-min mass)/(max mass - min mass) * (max size - min size)
+            sizes[i] = 2.0f + (sim.bodies[i].mass - 1.0f) / (30.0f - 1.0f) * (3.5f - 2.0f);;
         }
+        else {;
+            colors[i * 3] = 0.0f;
+            colors[i * 3 + 1] = 0.0f;
+            colors[i * 3 + 2] = 0.0f;
+        }
+
+        
     }
 
     // Update position buffer
@@ -326,13 +349,17 @@ void addToBuffer() {
 }
 
 void cleanup() {
+    delete[] sizes;
     delete[] colors;
+    delete[] vertices;
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &sizeVBO);
+    glDeleteBuffers(1, &colorVBO);
     glDeleteProgram(shaderProgram);
     glfwDestroyWindow(window);
     glfwTerminate();
-    delete[] vertices;
+  
 }
 
 // Main function
