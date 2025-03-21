@@ -37,7 +37,8 @@ float   aspectRatio;
 bool    cursorEnDis = false;
 
 //Simulation settings
-const int N     = 15000;
+const int N    = 15000;
+const int type = 1;
 
 //Time & camera variables
 int   frame     = 0;
@@ -60,7 +61,7 @@ GLfloat* sizes = new GLfloat[N];
 
 //Created objects
 Camera     camera(glm::vec3(0.0f, 0.0f, 0.0f));
-Simulation sim(N);
+Simulation sim(N,type);
 
 
 // Shader sources
@@ -259,6 +260,9 @@ void draw() {
         FPS = (1 / deltaTime);
         glfwSetWindowTitle(window, (windowTitle + std::to_string(FPS)).c_str());
     }
+
+    //optional, may cause some quality damage
+    //camera.Target = glm::vec3(vertices[0], vertices[1], vertices[2]);
     
 
     processInput(window);
@@ -303,15 +307,13 @@ void addToBuffer()  {
         vertices[i * 3 + 1] = sim.bodies[i].pos.z ;
         vertices[i * 3 + 2] = sim.bodies[i].pos.x ;
     
-
-        sizes[i] = 3.0f;
         float speed = sqrt(
             sim.bodies[i].vel.x * sim.bodies[i].vel.x +
             sim.bodies[i].vel.y * sim.bodies[i].vel.y +
             sim.bodies[i].vel.z * sim.bodies[i].vel.z
         );
 
-        if (i != 0) {
+        if (i > 1) {
             float min_speed = 40.0f;  // Minimum speed (blue)
             float max_speed = 90.0f; // Maximum speed (red)
 
@@ -326,7 +328,7 @@ void addToBuffer()  {
             colors[i * 3 + 2] = 1.0f - normalized_speed;
 
             // [min size] + (mass-min mass)/(max mass - min mass) * (max size - min size)
-            sizes[i] = 2.0f + (sim.bodies[i].mass - 1.0f) / (30.0f - 1.0f) * (3.5f - 2.0f);;
+            sizes[i] = std::min(2.0f + (sim.bodies[i].mass - 1.0f) / (50.0f - 1.0f) * (3.5f - 2.0f),5.0f);
         }
         else {;
             colors[i * 3] = 0.0f;
@@ -359,7 +361,6 @@ void cleanup() {
     glDeleteProgram(shaderProgram);
     glfwDestroyWindow(window);
     glfwTerminate();
-  
 }
 
 // Main function

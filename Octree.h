@@ -198,6 +198,7 @@ public:
                         return;
                     }
                     node = children + q1;
+                    
                 }
             }
         }

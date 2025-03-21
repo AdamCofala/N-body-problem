@@ -15,12 +15,14 @@ public:
     std::vector<Body> bodies;
     Octree octree;
 
-    Simulation(int n)
+    Simulation(int n, int type)
         : dt(0.05f),
         frame(0),
-        bodies(uniform_disc(n)),
+       
         octree(0.8f, 0.1f, Octant(bodies))  // Direct initialization
     {
+        if (type == 0)  bodies = uniform_disc(n);
+        else bodies = uniform_disc_bin(n);
     }
 
     void step() {
