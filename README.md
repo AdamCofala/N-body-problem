@@ -46,8 +46,9 @@ A real-time 3D N-body simulation of gravitational interactions, optimized with B
 ## Configuration (Edit in Code)
 ```cpp
 // In main.cpp
-const int N = 15000;  // Particle count
-float scale = 10.0f;   // Spatial scaling
+//Simulation settings
+const int N    = 15000;
+const int type = 0; // 0 for one galaxy, 1 for double galaxy
 
 // In Camera.h
 #define RADIUS 1500.0f      // Initial orbit distance
