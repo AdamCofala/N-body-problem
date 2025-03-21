@@ -38,7 +38,7 @@ bool    cursorEnDis = false;
 
 //Simulation settings
 const int N    = 15000;
-const int type = 1;
+const int type = 1; // 0 for one galaxy, 1 for double galaxy
 
 //Time & camera variables
 int   frame     = 0;

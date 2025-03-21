@@ -22,7 +22,9 @@ public:
         octree(0.8f, 0.1f, Octant(bodies))  // Direct initialization
     {
         if (type == 0)  bodies = uniform_disc(n);
-        else bodies = uniform_disc_bin(n);
+        else if (type==1) bodies = uniform_disc_bin(n);
+        // else if (type==2) bodies =spiral_galaxy(n);
+        //...
     }
 
     void step() {
