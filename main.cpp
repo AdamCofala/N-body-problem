@@ -37,7 +37,7 @@ float   aspectRatio;
 bool    cursorEnDis = false;
 
 //Simulation settings
-const int N    = 15000;
+const int N    = 17000;
 const int type = 1; // 0 for one galaxy, 1 for double galaxy
 
 //Time & camera variables
@@ -315,7 +315,9 @@ void addToBuffer()  {
 
         if (i > 1) {
             float min_speed = 40.0f;  // Minimum speed (blue)
-            float max_speed = 90.0f; // Maximum speed (red)
+            float max_speed = 0;
+            if (type == 0)  max_speed = 90.0f;
+            else if (type == 1) max_speed = 120.0f;
 
             // Normalize speed to [0, 1]
             float normalized_speed = (speed - min_speed) / (max_speed - min_speed);

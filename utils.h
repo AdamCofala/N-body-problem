@@ -105,7 +105,7 @@ std::vector<Body> uniform_disc_bin(size_t n) {
     std::uniform_real_distribution<float> mass_dist(1.0f, 50.0f);
 
     // Binary system parameters
-    const float galaxy_separation = float(std::sqrt(n)) * 6.0f; // Distance between galaxy centers
+    const float galaxy_separation = float(std::sqrt(n)) * 8.0f; // Distance between galaxy centers
     const float inner_radius = 100.0f;
     const float central_mass = 1e6f; // Reduced from 1e6f to have two smaller black holes
 
@@ -117,7 +117,8 @@ std::vector<Body> uniform_disc_bin(size_t n) {
     // First galaxy center
     const glm::vec3 center1(-binary_dir.x * galaxy_separation / 2, -binary_dir.y * galaxy_separation / 2, 0.0f);
     // Calculate orbital velocity for stable binary system
-    const float binary_orbital_velocity = std::sqrt(central_mass / galaxy_separation);
+    const float binary_orbital_velocity = std::sqrt(central_mass / galaxy_separation)/1.2f;
+
     const glm::vec3 vel1(binary_dir.y * binary_orbital_velocity, -binary_dir.x * binary_orbital_velocity, 0.0f);
 
     bodies.emplace_back(
