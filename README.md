@@ -5,9 +5,9 @@ A real-time 3D N-body simulation of gravitational interactions, optimized with B
 
 ## Screenshots
 
-| ![image](https://github.com/user-attachments/assets/ee677e8a-0486-4b43-9d15-909dde6807a8) | ![image](https://github.com/user-attachments/assets/588b5fd1-d867-4e2d-b468-04d2b337d7b0) | ![image](https://github.com/user-attachments/assets/e5a6a5b3-f657-459e-be73-611edd1b6e70) |
+| ![image](https://github.com/user-attachments/assets/ee677e8a-0486-4b43-9d15-909dde6807a8) | ![image](https://github.com/user-attachments/assets/1c9ad6cf-79cf-45d9-bf6f-4a2e37430422) | ![image](https://github.com/user-attachments/assets/e5a6a5b3-f657-459e-be73-611edd1b6e70) |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Full Galaxy Overview                                                                                                                                                                     | Top view                                                                                                                                                                | Velocity & mass-based  Color-Size Mapping in details                                                                                                                                                            |
+| Full Galaxy Overview                                                                                                                                                                     | Double galaxy option                                                                                                                                                               | Velocity & mass-based  Color-Size Mapping in details                                                                                                                                                            |
 
 
 ## Features
@@ -46,8 +46,9 @@ A real-time 3D N-body simulation of gravitational interactions, optimized with B
 ## Configuration (Edit in Code)
 ```cpp
 // In main.cpp
-const int N = 15000;  // Particle count
-float scale = 10.0f;   // Spatial scaling
+//Simulation settings
+const int N    = 15000;
+const int type = 0; // 0 for one galaxy, 1 for double galaxy
 
 // In Camera.h
 #define RADIUS 1500.0f      // Initial orbit distance
