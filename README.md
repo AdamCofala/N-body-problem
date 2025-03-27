@@ -74,3 +74,11 @@ const float vertical_scale = outer_radius * 0.1f;
 
 > **Note**  
 > Requires modern GPU with OpenGL 4.6 support. Start with N=5000 particles for low-end systems.
+
+## Sources:
+[The Barnes-Hut Algorithm - Tom Ventimiglia & Kevin Wayne](https://arborjs.org/docs/barnes-hut)
+
+[Barnes-Hut Galaxy Simulator - cs.princeton.edu](https://www.cs.princeton.edu/courses/archive/fall03/cs126/assignments/barnes-hut.html)
+
+[A Parallel Tree Code - John Dubinski](https://arxiv.org/pdf/astro-ph/9603097)
+
