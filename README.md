@@ -72,9 +72,6 @@ const float outer_radius = float(std::sqrt(n)) * 5.0f;
 const float vertical_scale = outer_radius * 0.1f;
 ```
 
-> **Note**  
-> Requires modern GPU with OpenGL 4.6 support. Start with N=5000 particles for low-end systems.
-
 ## Sources:
 [The Barnes-Hut Algorithm - Tom Ventimiglia & Kevin Wayne](https://arborjs.org/docs/barnes-hut)
 
