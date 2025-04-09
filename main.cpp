@@ -307,29 +307,13 @@ void addToBuffer()  {
         vertices[i * 3] = sim.bodies[i].pos.y ;
         vertices[i * 3 + 1] = sim.bodies[i].pos.z ;
         vertices[i * 3 + 2] = sim.bodies[i].pos.x ;
-    
-        float speed = sqrt(
-            sim.bodies[i].vel.x * sim.bodies[i].vel.x +
-            sim.bodies[i].vel.y * sim.bodies[i].vel.y +
-            sim.bodies[i].vel.z * sim.bodies[i].vel.z
-        );
 
         if (i > 1) {
-            //float min_speed = 40.0f;  // Minimum speed (blue)
-            //float max_speed = 0;
-            //if (type == 0)  max_speed = 90.0f;
-            //else if (type == 1) max_speed = 120.0f;
-            //
-            //// Normalize speed to [0, 1]
-            //float normalized_speed = (speed - min_speed) / (max_speed - min_speed);
-            //normalized_speed = std::clamp(normalized_speed, 0.0f, 1.0f); // Clamp to [0, 1] in case its higher
-            // Red increases with speed
 
             glm::vec3 Color = sim.bodies[i].getColor(type, typeColor);
+
             colors[i * 3] = Color.x;
-            // Green is for gradient
             colors[i * 3 + 1] = Color.y;
-            // Blue decreases with speed
             colors[i * 3 + 2] = Color.z;
 
             // [min size] + (mass-min mass)/(max mass - min mass) * (max size - min size)
@@ -340,8 +324,6 @@ void addToBuffer()  {
             colors[i * 3 + 1] = 0.0f;
             colors[i * 3 + 2] = 0.0f;
         }
-
-        
     }
 
     // Update position buffer
