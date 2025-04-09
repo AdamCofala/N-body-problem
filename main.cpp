@@ -37,8 +37,9 @@ float   aspectRatio;
 bool    cursorEnDis = false;
 
 //Simulation settings
-const int N    = 17000;
-const int type = 1; // 0 for one galaxy, 1 for double galaxy
+const int N         = 17000;
+const int type      = 1; // 0 for one galaxy, 1 for double galaxy
+const int typeColor = 0; //0 for velocity based color, 1 for mass based color
 
 //Time & camera variables
 int   frame     = 0;
@@ -314,20 +315,22 @@ void addToBuffer()  {
         );
 
         if (i > 1) {
-            float min_speed = 40.0f;  // Minimum speed (blue)
-            float max_speed = 0;
-            if (type == 0)  max_speed = 90.0f;
-            else if (type == 1) max_speed = 120.0f;
-
-            // Normalize speed to [0, 1]
-            float normalized_speed = (speed - min_speed) / (max_speed - min_speed);
-            normalized_speed = std::clamp(normalized_speed, 0.0f, 1.0f); // Clamp to [0, 1] in case its higher
+            //float min_speed = 40.0f;  // Minimum speed (blue)
+            //float max_speed = 0;
+            //if (type == 0)  max_speed = 90.0f;
+            //else if (type == 1) max_speed = 120.0f;
+            //
+            //// Normalize speed to [0, 1]
+            //float normalized_speed = (speed - min_speed) / (max_speed - min_speed);
+            //normalized_speed = std::clamp(normalized_speed, 0.0f, 1.0f); // Clamp to [0, 1] in case its higher
             // Red increases with speed
-            colors[i * 3] = normalized_speed;
+
+            glm::vec3 Color = sim.bodies[i].getColor(type, typeColor);
+            colors[i * 3] = Color.x;
             // Green is for gradient
-            colors[i * 3 + 1] = 0.1f;
+            colors[i * 3 + 1] = Color.y;
             // Blue decreases with speed
-            colors[i * 3 + 2] = 1.0f - normalized_speed;
+            colors[i * 3 + 2] = Color.z;
 
             // [min size] + (mass-min mass)/(max mass - min mass) * (max size - min size)
             sizes[i] = std::min(2.0f + (sim.bodies[i].mass - 1.0f) / (50.0f - 1.0f) * (3.5f - 2.0f),5.0f);
