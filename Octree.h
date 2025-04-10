@@ -3,6 +3,40 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+struct Range {
+    size_t start;
+    size_t end;
+    size_t size() const { return end - start; }
+};
+
+template<typename T, typename F>
+size_t partition(std::vector<T>& vec, size_t start, size_t end, F predicate) {
+    if (start >= end) {
+        return start;
+    }
+
+    size_t l = start;
+    size_t r = end - 1;
+
+    while (true) {
+        while (l <= r && predicate(vec[l])) {
+            l++;
+        }
+
+        while (l < r && !predicate(vec[r])) {
+            r--;
+        }
+
+        if (l >= r) {
+            return l;
+        }
+
+        std::swap(vec[l], vec[r]);
+        l++;
+        r--;
+    }
+}
+
 
 class Octant {
 public:
@@ -19,7 +53,6 @@ public:
 		float min_z = FLT_MAX;
 		float max_z = FLT_MIN;
 
-        #pragma omp parallel
 		for (const Body &body : Bodies) {
 
 			min_x = std::min(min_x, body.pos.x);
@@ -73,24 +106,26 @@ public:
 	glm::vec3 pos;
 	float mass;
 	Octant octant;
+    Range bodies;
 
-	Node(size_t next, Octant octant)
+	Node(size_t next, Octant octant, Range bodies_range = { 0, 0 })
 		: children(0),
 		next(next),
 		pos({0.0f,0.0f,0.0f}),
 		mass(0.0f),
-		octant(octant) {
+		octant(octant),
+        bodies(bodies_range){
 	}
 
-	bool is_leaf() {
+	bool is_leaf() const{
 		return children == 0;
 	}
 
-	bool is_branch() {
+	bool is_branch() const{
 		return children != 0;
 	}
 
-	bool is_empty() {
+	bool is_empty() const{
 		return mass == 0.0f;
 	}
 };
@@ -101,13 +136,16 @@ public:
     float e_sq;
     std::vector<Node> nodes;
     std::vector<size_t> parents;
+    size_t leaf_capacity;
+
     const size_t ROOT = 0;
     int n = 20000;
 
     // Modified constructor to initialize with root node
-    Octree(float theta, float epsilon, Octant root_octant)
+    Octree(float theta, float epsilon, Octant root_octant, size_t leaf)
         : t_sq(theta* theta),
-        e_sq(epsilon* epsilon)
+        e_sq(epsilon* epsilon),
+        leaf_capacity(leaf)
     {
         nodes.emplace_back(0, root_octant);  // Initialize root node
         nodes.reserve(n*0.5);
@@ -118,113 +156,159 @@ public:
         nodes.emplace_back(0, octant);  // Reset to root node
     }
 
-    size_t subdivide(size_t node) {
+    size_t subdivide(size_t node, std::vector<Body>& bodies, Range range, size_t split[9]) {
+        const glm::vec3 center = nodes[node].octant.center;
+
+        split[0] = range.start;
+        split[8] = range.end;
+
+        // Predicates must match findOctant() logic (using >)
+        auto predicate_z = [&center](const Body& body) { return body.pos.z <= center.z; };
+        auto predicate_y = [&center](const Body& body) { return body.pos.y <= center.y; };
+        auto predicate_x = [&center](const Body& body) { return body.pos.x <= center.x; };
+
+        // Partition by z-coordinate first
+        split[4] = partition(bodies, split[0], split[8], predicate_z);
+
+        // Partition by y-coordinate
+        split[2] = partition(bodies, split[0], split[4], predicate_y);
+        split[6] = partition(bodies, split[4], split[8], predicate_y);
+
+        // Partition by x-coordinate
+        split[1] = partition(bodies, split[0], split[2], predicate_x);
+        split[3] = partition(bodies, split[2], split[4], predicate_x);
+        split[5] = partition(bodies, split[4], split[6], predicate_x);
+        split[7] = partition(bodies, split[6], split[8], predicate_x);
+
+        // Only subdivide if there are enough bodies
+        if (range.size() <= leaf_capacity) {
+            return 0; // No subdivision needed
+        }
+
         parents.push_back(node);
         const size_t children = nodes.size();
         nodes[node].children = children;
 
         std::vector<Octant> octants = nodes[node].octant.subdivide();
-
-        // Create 8 children with proper next pointers
-
         for (size_t i = 0; i < 8; i++) {
             const size_t next = (i < 7) ? children + i + 1 : nodes[node].next;
-            nodes.emplace_back(next, octants[i]);
+            nodes.emplace_back(next, octants[i], Range{ split[i], split[i + 1] });
         }
 
         return children;
     }
 
     void propagate() {
+        // First pass: Accumulate masses and weighted positions
         for (auto it = parents.rbegin(); it != parents.rend(); ++it) {
             size_t node = *it;
             size_t child = nodes[node].children;
 
-            glm::vec3 pos_sum(0.0f);
-            float mass_sum = 0.0f;
+            // Reset mass and position for accumulation
+            nodes[node].pos = glm::vec3(0.0f);
+            nodes[node].mass = 0.0f;
 
+            // For octrees we need to sum all 8 children
             for (size_t i = 0; i < 8; ++i) {
-                pos_sum += nodes[child + i].pos * nodes[child + i].mass;
-                mass_sum += nodes[child + i].mass;
+                nodes[node].pos += nodes[child + i].pos * nodes[child + i].mass;
+                nodes[node].mass += nodes[child + i].mass;
             }
+        }
 
-            nodes[node].pos = pos_sum / mass_sum;
-            nodes[node].mass = mass_sum;
+        // Second pass: Normalize positions
+        for (auto& node : nodes) {
+            // Avoid division by zero by using a small positive value
+            float divisor = std::max(node.mass, std::numeric_limits<float>::min());
+            node.pos /= divisor;
         }
     }
 
-    void insert(glm::vec3 pos, float mass) {
-        size_t node = ROOT;
+    void build(std::vector<Body>& bodies, size_t leaf_capacity = 8) {
+        // First, clear the tree and initialize with root node
+        Octant root_octant(bodies);
+        nodes.clear();
+        parents.clear();
+        nodes.emplace_back(0, root_octant, Range{ 0, bodies.size() });
 
-        while (true) {
-            Node& current = nodes[node];
+        std::vector<Range> node_bodies;
+        node_bodies.push_back({ 0, bodies.size() });
 
-            if (current.is_branch()) {
-                const unsigned octant = current.octant.findOctant(pos);
-                node = current.children + octant;
+        // Process each node
+        size_t node = 0;
+        while (node < nodes.size()) {
+            Range range = node_bodies[node];
 
-                // Bounds check
-                if (node >= nodes.size()) {
-                    throw std::out_of_range("Invalid node access");
+            // Subdivide if needed
+            if (range.size() > leaf_capacity) {
+                size_t split[9];
+                size_t children = subdivide(node, bodies, range, split);
+
+                // Add ranges for each child using the split from subdivide
+                for (size_t i = 0; i < 8; i++) {
+                    node_bodies.push_back({ split[i], split[i + 1] });
                 }
             }
             else {
-                if (current.is_empty()) {
-                    current.pos = pos;
-                    current.mass = mass;
-                    return;
-                }
+                // Calculate center of mass for leaf nodes
+                nodes[node].pos = glm::vec3(0.0f);
+                nodes[node].mass = 0.0f;
 
-                // Handle collision/duplicate
-                if (pos == current.pos) {
-                    current.mass += mass;
-                    return;
-                }
-
-                // Store existing data
-                const glm::vec3 old_pos = current.pos;
-                const float old_mass = current.mass;
-
-                while (true) {
-                    const size_t children = subdivide(node);
-                    const unsigned q1 = nodes[node].octant.findOctant(old_pos);
-                    const unsigned q2 = nodes[node].octant.findOctant(pos);
-
-                    if (q1 != q2) {
-                        nodes[children + q1].pos = old_pos;
-                        nodes[children + q1].mass = old_mass;
-                        nodes[children + q2].pos = pos;
-                        nodes[children + q2].mass = mass;
-                        return;
-                    }
-                    node = children + q1;
-                    
+                for (size_t i = range.start; i < range.end; i++) {
+                    nodes[node].pos += bodies[i].pos * bodies[i].mass;
+                    nodes[node].mass += bodies[i].mass;
                 }
             }
+
+            node++;
         }
+
+        // Finalize by propagating values up the tree
+        propagate();
     }
 
-    glm::vec3 acc(glm::vec3 pos) const {
+    glm::vec3 acc(glm::vec3 pos, const std::vector<Body>& bodies) const {
         glm::vec3 acceleration(0.0f);
         size_t node = ROOT;
 
-        while (node < nodes.size()) {
-            Node n = nodes[node];
+        while (true) {
+            const Node& n = nodes[node];
             const glm::vec3 d = n.pos - pos;
             const float d_sq = glm::dot(d, d);
-            const float size_sq = n.octant.size * n.octant.size;
 
-            if (n.is_leaf() || (size_sq / d_sq < t_sq)) {
-                const float denom = d_sq + e_sq;
-                acceleration += n.mass * d / (denom * std::sqrt(denom));
+            if (n.is_branch() && n.octant.size * n.octant.size < d_sq * t_sq) {
 
-                if (n.next == 0) break;
+                const float denom = (d_sq + e_sq) * std::sqrt(d_sq);
+                acceleration += d * (n.mass / denom);
+
+                if (n.next == 0) {
+                    break;
+                }
+                node = n.next;
+            }
+            else if (n.is_leaf()) {
+
+                for (size_t i = n.bodies.start; i < n.bodies.end; i++) {
+                    const Body& body = bodies[i];
+                    const glm::vec3 d_body = body.pos - pos;
+                    const float d_sq_body = glm::dot(d_body, d_body);
+                    const float denom = (d_sq_body + e_sq) * std::sqrt(d_sq_body);
+
+                    // Avoid infinity by clamping to FLT_MAX
+                    float force = std::min(body.mass / denom, std::numeric_limits<float>::max());
+                    acceleration += d_body * force;
+                }
+
+                if (n.next == 0) {
+                    break;
+                }
                 node = n.next;
             }
             else {
+                // Recurse into children
                 node = n.children;
             }
         }
+
         return acceleration;
     }
 };

@@ -37,8 +37,8 @@ float   aspectRatio;
 bool    cursorEnDis = false;
 
 //Simulation settings
-const int N         = 17000;
-const int type      = 1; // 0 for one galaxy, 1 for double galaxy
+const int N         = 20000;
+const int type      = 0; // 0 for one galaxy, 1 for double galaxy
 const int typeColor = 0; //0 for velocity based color, 1 for mass based color
 
 //Time & camera variables
@@ -308,7 +308,7 @@ void addToBuffer()  {
         vertices[i * 3 + 1] = sim.bodies[i].pos.z ;
         vertices[i * 3 + 2] = sim.bodies[i].pos.x ;
 
-        if (i > 1) {
+        if (sim.bodies[i].mass < 10e4) {
 
             glm::vec3 Color = sim.bodies[i].getColor(type, typeColor);
 

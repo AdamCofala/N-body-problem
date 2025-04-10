@@ -19,7 +19,7 @@ public:
         : dt(0.05f),
         frame(0),
        
-        octree(0.8f, 0.1f, Octant(bodies))  // Direct initialization
+        octree(1.f, 0.1f, Octant(bodies),8)  // Direct initialization
     {
         if (type == 0)  bodies = uniform_disc(n);
         else if (type==1) bodies = uniform_disc_bin(n);
@@ -74,19 +74,12 @@ private:
     }
 
     void attract() {
-  
-        Octant new_octant(bodies);
-        octree.clear(new_octant);
-
-        for (const auto& body : bodies) {
-            octree.insert(body.pos, body.mass);
-        }
-        octree.propagate();
+        octree.build(bodies);
 
         // Update accelerations using octree
 #pragma omp parallel for
         for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
-            bodies[i].acc = octree.acc(bodies[i].pos);
+            bodies[i].acc = octree.acc(bodies[i].pos,bodies);
         }
     }
 
