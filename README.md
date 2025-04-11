@@ -27,6 +27,18 @@ A real-time 3D N-body simulation of gravitational interactions, optimized with B
 - **Galaxy Initialization**  
   Realistic disc-shaped particle distribution
 
+## Curently Working On
+- [x] rebuild octree
+- [x] ignoring bodies that are far away from center
+- [ ] multithreading
+- [ ] null bodies management
+- [ ] add object collision
+- [ ] add long coliding objects merge
+- [ ] create an interface using imgui
+- [ ] add user options
+
+You can see this changes in [Improved Branch](https://github.com/AdamCofala/N-body-problem/tree/improved-tests)
+
 ## Dependencies
 - OpenGL 4.6
 - GLFW 3.3
