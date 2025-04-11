@@ -131,11 +131,12 @@ public:
     float cutoffDistance = 1000.0f;
 
     const size_t ROOT = 0;
-    int n = 20000;
+    int n;
 
     // Modified constructor to initialize with root node
-    Octree(float theta, float epsilon, Octant root_octant, size_t leaf=8, float cutoffDistance=1000.0f)
-        : t_sq(theta* theta),
+    Octree(int n, float theta, float epsilon, Octant root_octant, size_t leaf=8, float cutoffDistance=1000.0f)
+        : n(n),
+        t_sq(theta* theta),
         e_sq(epsilon* epsilon),
         leaf_capacity(leaf),
         cutoffDistance(cutoffDistance)   

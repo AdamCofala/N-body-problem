@@ -53,11 +53,11 @@ GLFWwindow* window      = nullptr;
 std::string windowTitle = "N-body probmem, FPS: ";
 //buffers
 GLuint      VAO, VBO, shaderProgram;
-GLfloat*    vertices = new GLfloat[size_t(N) * 3];
+GLfloat*    vertices    = new GLfloat[size_t(N) * 3];
 GLuint      colorVBO;
 GLfloat*    colors;
-GLuint sizeVBO;          // Nowy VBO dla rozmiarów
-GLfloat* sizes = new GLfloat[N];      
+GLuint      sizeVBO;         
+GLfloat*    sizes       = new GLfloat[N];      
 
 
 //Created objects

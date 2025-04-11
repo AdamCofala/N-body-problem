@@ -10,11 +10,11 @@ constexpr float G = 6.674e-11f;
 
 class Simulation {
 public:
+
     float dt;
     size_t frame;
     std::vector<Body> bodies;
     
-
     //Simulation Settings:
     float        theta          = 0.8f;
     float        epsilon        = 0.1f;
@@ -27,7 +27,7 @@ public:
         : dt(0.05f),
         frame(0),
        
-        octree(theta, epsilon, Octant(bodies), leaf_capacity, cutoffDistance)  // Direct initialization
+        octree(n, theta, epsilon, Octant(bodies), leaf_capacity, cutoffDistance)  // Direct initialization
     {
         if (type == 0)  bodies = uniform_disc(n);
         else if (type==1) bodies = uniform_disc_bin(n);
