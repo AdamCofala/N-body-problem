@@ -13,13 +13,21 @@ public:
     float dt;
     size_t frame;
     std::vector<Body> bodies;
+    
+
+    //Simulation Settings:
+    float        theta          = 0.8f;
+    float        epsilon        = 0.1f;
+    unsigned int leaf_capacity  = 4;
+    float        cutoffDistance = 1500.0f;
+
     Octree octree;
 
     Simulation(int n, int type)
         : dt(0.05f),
         frame(0),
        
-        octree(0.8f, 0.1f, Octant(bodies),4)  // Direct initialization
+        octree(theta, epsilon, Octant(bodies), leaf_capacity, cutoffDistance)  // Direct initialization
     {
         if (type == 0)  bodies = uniform_disc(n);
         else if (type==1) bodies = uniform_disc_bin(n);

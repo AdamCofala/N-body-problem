@@ -128,15 +128,17 @@ public:
     std::vector<Node> nodes;
     std::vector<size_t> parents;
     size_t leaf_capacity;
+    float cutoffDistance = 1000.0f;
 
     const size_t ROOT = 0;
     int n = 20000;
 
     // Modified constructor to initialize with root node
-    Octree(float theta, float epsilon, Octant root_octant, size_t leaf)
+    Octree(float theta, float epsilon, Octant root_octant, size_t leaf=8, float cutoffDistance=1000.0f)
         : t_sq(theta* theta),
         e_sq(epsilon* epsilon),
-        leaf_capacity(leaf)
+        leaf_capacity(leaf),
+        cutoffDistance(cutoffDistance)   
     {
         nodes.emplace_back(0, root_octant, Range{ 0, 0 });  // Initialize root node
         nodes.reserve(n);
@@ -249,6 +251,15 @@ public:
             const Node& n = nodes[node];
             const glm::vec3 d = n.pos - pos;
             const float d_sq = glm::dot(d, d);
+
+            if (d_sq > cutoffDistance * cutoffDistance) {
+                if (n.next == 0) {
+                    break;
+                }
+                node = n.next;
+                continue;
+            }
+
 
             if (n.is_branch() && n.octant.size * n.octant.size < d_sq * t_sq) {
 

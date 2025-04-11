@@ -38,7 +38,7 @@ bool    cursorEnDis = false;
 
 //Simulation settings
 const int N         = 20000;
-const int type      = 0; // 0 for one galaxy, 1 for double galaxy
+const int type      = 1; // 0 for one galaxy, 1 for double galaxy
 const int typeColor = 0; //0 for velocity based color, 1 for mass based color
 
 //Time & camera variables
