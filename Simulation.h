@@ -27,7 +27,7 @@ public:
         : dt(0.05f),
         frame(0),
        
-        octree(n, theta, epsilon, Octant(bodies), leaf_capacity, cutoffDistance)  // Direct initialization
+        octree(n,theta, epsilon, Octant(bodies), leaf_capacity, cutoffDistance)  // Direct initialization
     {
         if (type == 0)  bodies = uniform_disc(n);
         else if (type==1) bodies = uniform_disc_bin(n);
@@ -75,9 +75,7 @@ private:
     void iterate() {
 
         for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
-            bodies[i].vel += bodies[i].acc * dt;
-            bodies[i].pos += bodies[i].vel * dt;
-            bodies[i].acc = glm::vec3(0.0f);
+            bodies[i].update(dt);
         }
     }
 

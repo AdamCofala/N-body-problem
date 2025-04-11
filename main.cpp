@@ -24,15 +24,15 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Global variables
-GLuint  SCR_WIDTH = 1200;
-GLuint  SCR_HEIGHT = 720;
-GLuint  oldSCR_WIDTH = 1200;
+GLuint  SCR_WIDTH     = 1200;
+GLuint  SCR_HEIGHT    = 720;
+GLuint  oldSCR_WIDTH  = 1200;
 GLuint  oldSCR_HEIGHT = 720;
 GLuint  mouseX;
 GLuint  mouseY;
-bool    firstMouse=true;
-float   lastX = SCR_WIDTH / 2.0f;
-float   lastY = SCR_HEIGHT / 2.0f;
+bool    firstMouse = true;
+float   lastX      = SCR_WIDTH / 2.0f;
+float   lastY      = SCR_HEIGHT / 2.0f;
 float   aspectRatio;
 bool    cursorEnDis = false;
 

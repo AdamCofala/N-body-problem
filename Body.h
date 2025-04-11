@@ -60,8 +60,8 @@ public:
         
         /*idk know if pos should be updated before vel, however someone with more experience than me do like that, so i hope
         its correct ;-; */
-        pos += vel * dt; 
         vel += acc * dt;
+        pos += vel * dt;
         acc *= 0.0f;
     }
 
