@@ -19,7 +19,7 @@ public:
         : dt(0.05f),
         frame(0),
        
-        octree(1.f, 0.1f, Octant(bodies),8)  // Direct initialization
+        octree(0.8f, 0.1f, Octant(bodies),4)  // Direct initialization
     {
         if (type == 0)  bodies = uniform_disc(n);
         else if (type==1) bodies = uniform_disc_bin(n);

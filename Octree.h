@@ -139,7 +139,7 @@ public:
         leaf_capacity(leaf)
     {
         nodes.emplace_back(0, root_octant, Range{ 0, 0 });  // Initialize root node
-        nodes.reserve(n*0.5);
+        nodes.reserve(n);
     }
     void clear() {
         nodes.clear();
@@ -175,10 +175,12 @@ public:
         node.children = children_base;
 
         auto octants = node.octant.subdivide();
+        size_t parent_next = node.next; // Capture the parent's next value early
         for (int i = 0; i < 8; i++) {
-            size_t next = (i < 7) ? children_base + i + 1 : node.next;
+            size_t next = (i < 7) ? children_base + i + 1 : parent_next;
             nodes.emplace_back(next, octants[i], Range{ split[i], split[i + 1] });
         }
+
 
         return children_base;
     }
