@@ -65,7 +65,7 @@ public:
 
 private:
     void iterate() {
-#pragma omp parallel for
+
         for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
             bodies[i].vel += bodies[i].acc * dt;
             bodies[i].pos += bodies[i].vel * dt;
