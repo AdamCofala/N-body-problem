@@ -38,7 +38,7 @@ bool    cursorEnDis = false;
 
 //Simulation settings
 const int N         = 20000;
-const int type      = 1; // 0 for one galaxy, 1 for double galaxy
+const int type      = 0; // 0 for one galaxy, 1 for double galaxy
 const int typeColor = 0; //0 for velocity based color, 1 for mass based color
 
 //Time & camera variables
@@ -391,6 +391,14 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
        camera.ProcessKeyboard(DOWN, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
 
     static bool previousStateR = GLFW_RELEASE;
     int currentStateR = glfwGetKey(window, GLFW_KEY_R);

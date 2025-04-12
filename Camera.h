@@ -288,6 +288,14 @@ public:
             Target[1] += velocity;
         if (direction == DOWN)
             Target[1] += -velocity;
+        if (direction == LEFT)
+            Target[0] += velocity;
+        if (direction == RIGHT)
+            Target[0] += -velocity;
+        if (direction == FORWARD)
+            Target[2] += velocity;
+        if (direction == BACKWARD)
+            Target[2] += -velocity;
 
         updateCameraPosition();
     }

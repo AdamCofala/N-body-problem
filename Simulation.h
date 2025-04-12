@@ -16,7 +16,7 @@ public:
     std::vector<Body> bodies;
     
     //Simulation Settings:
-    float        theta          = 0.8f;
+    float        theta          = 1.0f; //FUN FACT: using theta=1.0f (full aproximation) gives u only 1% of error!
     float        epsilon        = 0.1f;
     unsigned int leaf_capacity  = 4;
     float        cutoffDistance = 1500.0f;
