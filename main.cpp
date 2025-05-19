@@ -35,10 +35,11 @@ float   lastX      = SCR_WIDTH / 2.0f;
 float   lastY      = SCR_HEIGHT / 2.0f;
 float   aspectRatio;
 bool    cursorEnDis = false;
+bool    shouldPause = false;
 
 //Simulation settings
-const int N         = 20000;
-const int type      = 0; // 0 for one galaxy, 1 for double galaxy
+const int N         = 30000;
+const int type      = 1; // 0 for one galaxy, 1 for double galaxy
 const int typeColor = 0; //0 for velocity based color, 1 for mass based color
 
 //Time & camera variables
@@ -243,7 +244,8 @@ void setupBuffers() {
 // Runtime functions
 void update() {
     sim.dt = deltaTime;
-    sim.step();
+    
+    if(!shouldPause) sim.step();
     addToBuffer();
 }
 
@@ -318,6 +320,7 @@ void addToBuffer()  {
 
             // [min size] + (mass-min mass)/(max mass - min mass) * (max size - min size)
             sizes[i] = std::min(2.0f + (sim.bodies[i].mass - 1.0f) / (50.0f - 1.0f) * (3.5f - 2.0f),5.0f);
+            sim.bodies[i].radius = sizes[i];
         }
         else {;
             colors[i * 3] = 0.0f;
@@ -399,7 +402,7 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         camera.ProcessKeyboard(BACKWARD, deltaTime);
-
+    
     static bool previousStateR = GLFW_RELEASE;
     int currentStateR = glfwGetKey(window, GLFW_KEY_R);
     if (currentStateR == GLFW_PRESS && previousStateR == GLFW_RELEASE)
@@ -408,6 +411,14 @@ void processInput(GLFWwindow* window)
         glfwSetInputMode(window, GLFW_CURSOR, cursorEnDis ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
     previousStateR = currentStateR;
+
+    static bool previousStateP = GLFW_RELEASE;
+    int currentStateP = glfwGetKey(window, GLFW_KEY_P);
+    if (currentStateP == GLFW_PRESS && previousStateP == GLFW_RELEASE)
+    {
+        shouldPause = !shouldPause;
+    }
+    previousStateP = currentStateP;
 
 }
 

@@ -22,6 +22,7 @@ std::vector<Body> uniform_disc(size_t n) {
         inner_radius
     );
 
+
     // Random number generators
     std::mt19937 gen(0);
     std::uniform_real_distribution<float> angle_dist(0.0f, 2.0f * M_PI);
