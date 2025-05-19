@@ -341,6 +341,7 @@ void addToBuffer()  {
 }
 
 void cleanup() {
+
     delete[] sizes;
     delete[] colors;
     delete[] vertices;
@@ -419,7 +420,6 @@ void processInput(GLFWwindow* window)
         shouldPause = !shouldPause;
     }
     previousStateP = currentStateP;
-
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
