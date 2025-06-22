@@ -146,7 +146,6 @@
     <ClInclude Include="Body.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Octree.h" />
-    <ClInclude Include="Partition.h" />
     <ClInclude Include="Simulation.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

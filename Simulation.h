@@ -42,9 +42,11 @@ public:
     }
 
     void Brute_step() {
-        // Phase 1: Compute accelerations
+
         for (Body& x : bodies) {
+
             x.acc = glm::vec3(0.0f);
+
             for (const Body& y : bodies) {
                 if (&x == &y) continue; // Skip self-interaction
 
@@ -61,14 +63,11 @@ public:
                 // Newtonian gravity: F = G*(m1*m2)/r², acceleration = F/m1 = G*m2/r²
                 x.acc += G * y.mass * direction / r_squared;
             }
-        }
 
-        // Phase 2: Update velocities and positions
-        for (Body& x : bodies) {
+            //Update velocity and position of body
             x.vel += x.acc * dt;
             x.pos += x.vel * dt;
         }
-
     }
 
 private:
