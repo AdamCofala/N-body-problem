@@ -30,10 +30,10 @@ A real-time 3D N-body simulation of gravitational interactions, optimized with B
 ## Curently Working On
 - [x] rebuild octree
 - [x] ignoring bodies that are far away from center
-- [ ] multithreading
-- [ ] null bodies management
-- [ ] add object collision
-- [ ] add long coliding objects merge
+- [x] multithreading
+- [x] null bodies management
+- [ ] ~~add object collision~~ (To much computing power needed)
+- [ ] ~~add long coliding objects merge~~ - || -
 - [ ] create an interface using imgui
 - [ ] add user options
 
