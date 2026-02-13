@@ -1,6 +1,3 @@
-#https://github.com/meemknight/cmakeSetup
-#Version 1.1.0
-
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -46,11 +43,6 @@ find_package(glfw3 CONFIG REQUIRED)
 add_subdirectory(include/GLFW)		#window oppener
 add_subdirectory(include/glad)		#opengl loader
 add_subdirectory(include/glm)		#math
-add_subdirectory(include/imgui)		#ui
-add_subdirectory(include/KHR)
-add_subdirectory(include/nlohmann)
-add_subdirectory(include/sc)
-add_subdirectory(include/stb)
 #----------V-----------------------V------------#my libraries
 
 
@@ -120,7 +112,7 @@ else()
 endif()
 
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm ${GLFW_TARGET}
-	glad stb_image stb_truetype imgui)
+	glad)
 
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
