@@ -17,6 +17,7 @@
 
 //rendering things
 #define GLFW_INCLUDE_NONE
+#define GLFW_STATIC
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -38,7 +39,7 @@ bool    cursorEnDis = false;
 bool    shouldPause = false;
 
 //Simulation settings
-const int N         = 30000;
+const int N         = 10000;
 const int type      = 1; // 0 for one galaxy, 1 for double galaxy
 const int typeColor = 0; //0 for velocity based color, 1 for mass based color
 
@@ -263,11 +264,7 @@ void draw() {
         FPS = (1 / deltaTime);
         glfwSetWindowTitle(window, (windowTitle + std::to_string(FPS)).c_str());
     }
-
-    //optional, may cause some quality damage
-    //camera.Target = glm::vec3(vertices[0], vertices[1], vertices[2]);
     
-
     processInput(window);
     
     if (lastX != mouseX || lastY != mouseX || oldSCR_WIDTH != SCR_WIDTH || oldSCR_HEIGHT != SCR_HEIGHT ) {
@@ -381,6 +378,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     SCR_WIDTH = width;
 
     glViewport(0, 0, width, height);
+
+	glfwPollEvents();
+	update();
+	draw();
+
+
 }
 
 void processInput(GLFWwindow* window)
