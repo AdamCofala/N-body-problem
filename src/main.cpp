@@ -31,15 +31,15 @@ GLuint  oldSCR_WIDTH  = 1200;
 GLuint  oldSCR_HEIGHT = 720;
 GLuint  mouseX;
 GLuint  mouseY;
-bool    firstMouse = true;
-float   lastX      = SCR_WIDTH / 2.0f;
-float   lastY      = SCR_HEIGHT / 2.0f;
+bool    firstMouse  = true;
+float   lastX       = SCR_WIDTH / 2.0f;
+float   lastY       = SCR_HEIGHT / 2.0f;
 float   aspectRatio;
 bool    cursorEnDis = false;
 bool    shouldPause = false;
 
 //Simulation settings
-const int N         = 10000;
+const int N         = 30000;
 const int type      = 1; // 0 for one galaxy, 1 for double galaxy
 const int typeColor = 0; //0 for velocity based color, 1 for mass based color
 
@@ -60,7 +60,6 @@ GLuint      colorVBO;
 GLfloat*    colors;
 GLuint      sizeVBO;         
 GLfloat*    sizes       = new GLfloat[N];      
-
 
 //Created objects
 Camera     camera(glm::vec3(0.0f, 0.0f, 0.0f));
