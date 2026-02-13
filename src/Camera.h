@@ -275,9 +275,8 @@ public:
     void ProcessMouseScroll(float yoffset)
     {
         
-        desiredRadius -= (float)yoffset * 10;
+        desiredRadius -= (float)yoffset * 100;
         if (desiredRadius < 1.0f) desiredRadius = 1.0f;
-        //std::cout << desiredRadius << std::endl;
         updateCameraPosition();
     }
 
