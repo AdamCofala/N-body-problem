@@ -2,7 +2,9 @@
 
 ## 1. Project Overview
 
-Real-time 3D N-body gravity simulation with Barnes-Hut octree optimization and OpenGL rendering. Built with C++17, OpenGL 4.6, GLFW, GLM, and GLAD.
+| <video src="https://github.com/user-attachments/assets/fc3275ba-f3b1-438c-9383-7e62a2d7a295" width="300"></video> | Real-time 3D N-body gravity simulation with Barnes-Hut octree optimization and OpenGL rendering. Built with C++17, OpenGL 4.6, GLFW, GLM, and GLAD.|
+| --- | --- |
+
 
 **Key Features:**
 - Barnes-Hut octree for O(n log n) force calculations
